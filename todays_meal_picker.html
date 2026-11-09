@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今天吃什麼？抽籤器</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      color: #292524;
+    }
+    .app {
+      width: min(100%, 520px);
+      padding: 32px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(120, 53, 15, .12);
+    }
+    h1 { margin: 0 0 8px; text-align: center; font-size: 2rem; }
+    .intro { margin: 0 0 24px; text-align: center; color: #78716c; }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 14px;
+      border: 1px solid #d6d3d1;
+      border-radius: 12px;
+      resize: vertical;
+      font: inherit;
+      line-height: 1.7;
+    }
+    textarea:focus, button:focus-visible {
+      outline: 3px solid #fdba74;
+      outline-offset: 2px;
+    }
+    .hint { margin: 8px 0 18px; color: #78716c; font-size: .9rem; }
+    button {
+      width: 100%;
+      padding: 13px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #ea580c;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #c2410c; }
+    .result {
+      margin-top: 22px;
+      min-height: 110px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      border: 2px dashed #fed7aa;
+      border-radius: 14px;
+      background: #fff7ed;
+      text-align: center;
+    }
+    .result-label { color: #9a3412; font-size: .9rem; }
+    #resultText {
+      margin: 8px 0 0;
+      color: #c2410c;
+      font-size: 2rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    #resultText.error { color: #b91c1c; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>今天吃什麼？</h1>
+    <p class="intro">把想吃的選項列出來，讓抽籤器幫你決定！</p>
+
+    <label for="options">候選清單（每行一個選項）</label>
+    <textarea id="options" spellcheck="false">便當
+麵
+咖哩
+水餃</textarea>
+    <p class="hint">抽籤時會自動略過空白行，並移除完全相同的重複選項。</p>
+
+    <button id="drawButton" type="button">幫我選</button>
+
+    <section class="result" aria-live="polite" aria-atomic="true">
+      <div>
+        <div class="result-label">今天就決定吃這個！</div>
+        <p id="resultText">等待抽籤中⋯</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const optionsInput = document.getElementById("options");
+    const drawButton = document.getElementById("drawButton");
+    const resultText = document.getElementById("resultText");
+
+    function getValidOptions() {
+      // 去除每行前後空白、排除空白行，再移除完全相同的重複選項。
+      return [...new Set(
+        optionsInput.value
+          .split(/\r?\n/)
+          .map(option => option.trim())
+          .filter(option => option.length > 0)
+      )];
+    }
+
+    function drawOption() {
+      const options = getValidOptions();
+
+      if (options.length === 0) {
+        resultText.textContent = "請先輸入至少一個選項";
+        resultText.classList.add("error");
+        return;
+      }
+
+      // 每個有效選項各占一個索引，因此中選機率相同。
+      const randomIndex = Math.floor(Math.random() * options.length);
+      resultText.textContent = options[randomIndex];
+      resultText.classList.remove("error");
+    }
+
+    drawButton.addEventListener("click", drawOption);
+  </script>
+</body>
+</html>
